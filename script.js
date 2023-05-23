@@ -26,7 +26,16 @@ const conn = new Sequelize({
     dialect: 'mysql'
 });
 
-class Article extends Model {}
+class Article extends Model {
+    static async findIniKontenMaxTwo() {
+        return await this.findAll({
+            where: {
+                konten: 'ini konten',
+            },
+            limit: 2,
+        });
+    }
+}
 Article.init({
     id: {
         type: DataTypes.INTEGER,
@@ -72,7 +81,7 @@ const handlerGetCategories = async (req, res, next) => {
 };
 
 const handlerGetArticles = async (req, res) => {
-    const result = await Article.findAll();
+    const result = await Article.findIniKontenMaxTwo();
     res.json(result);
 };
 
