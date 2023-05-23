@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql2');
+const { Sequelize, Model, DataTypes } = require('sequelize');
 const jwt = require('jsonwebtoken');
 
 const secretKey = '6P8NVeUmFOOaYXDKuhKaN08SRJCqqj';
@@ -17,49 +17,82 @@ const users = [
     }
 ];
 
-const conn = mysql.createConnection({
-    host: 'localhost',
-    // port: 3306,
-    user: 'root',
-    password: 'toor',
+const conn = new Sequelize({
     database: 'database_blog',
+    username: 'root',
+    password: 'toor',
+    host: 'localhost',
+    port: 3306,
+    dialect: 'mysql'
 });
 
-conn.connect();
+class Article extends Model {}
+Article.init({
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+    },
+    judul: {
+        type: DataTypes.STRING,
+    },
+    konten: {
+        type: DataTypes.STRING,
+    },
+}, {
+    sequelize: conn,
+    tableName: 'article',
+    timestamps: false,
+});
+
+class Category extends Model {}
+Category.init({
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+    },
+    nama: {
+        type: DataTypes.STRING,
+    },
+    deskripsi: {
+        type: DataTypes.STRING,
+    },
+}, {
+    sequelize: conn,
+    tableName: 'category',
+    timestamps: false,
+});
 
 const app = express();
 
 app.use(express.json());
 
-const handlerGetCategories = (req, res, next) => {
-    conn.query('select * from category', {}, function(err, result) {
-        console.log(result);
-        // res.json(result);
-        next();
-    });
+const handlerGetCategories = async (req, res, next) => {
+    const result = await Category.findAll();
+    res.json(result);
 };
 
-const handlerGetArticles = (req, res) => {
-    conn.query('select * from article', {}, function(err, result) {
-        console.log(result);
-        res.json(result);
-    });
+const handlerGetArticles = async (req, res) => {
+    const result = await Article.findAll();
+    res.json(result);
 };
 
-const handlerPostArticle = (req, res) => {
+const handlerPostArticle = async (req, res) => {
     // const query = req.query;
     const body = req.body;
 
     // const query = req.params;
 
-    console.log(body);
+    // console.log(body);
 
     // res.send('ok');
 
-    conn.query(`insert into article (id, judul, konten) values (${body.id}, '${body.judul}', '${body.konten}')`, {}, function(err, result) {
-        console.log(result);
-        res.json(result);
+    const result = await Article.create({
+        id: body.id,
+        judul: body.judul,
+        konten: body.konten,
     });
+
+    res.json(result);
 };
 
 const middlewareValidation = (req, res, next) => {
