@@ -1,6 +1,7 @@
 const express = require('express');
-const { Sequelize, Model, DataTypes } = require('sequelize');
 const jwt = require('jsonwebtoken');
+const Category = require('./database/models/Category');
+const Article = require('./database/models/Article');
 
 const secretKey = '6P8NVeUmFOOaYXDKuhKaN08SRJCqqj';
 
@@ -16,60 +17,6 @@ const users = [
         password: '4r3e2w1q'
     }
 ];
-
-const conn = new Sequelize({
-    database: 'database_blog',
-    username: 'root',
-    password: 'toor',
-    host: 'localhost',
-    port: 3306,
-    dialect: 'mysql'
-});
-
-class Article extends Model {
-    static async findIniKontenMaxTwo() {
-        return await this.findAll({
-            where: {
-                konten: 'ini konten',
-            },
-            limit: 2,
-        });
-    }
-}
-Article.init({
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-    },
-    judul: {
-        type: DataTypes.STRING,
-    },
-    konten: {
-        type: DataTypes.STRING,
-    },
-}, {
-    sequelize: conn,
-    tableName: 'article',
-    timestamps: false,
-});
-
-class Category extends Model {}
-Category.init({
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-    },
-    nama: {
-        type: DataTypes.STRING,
-    },
-    deskripsi: {
-        type: DataTypes.STRING,
-    },
-}, {
-    sequelize: conn,
-    tableName: 'category',
-    timestamps: false,
-});
 
 const app = express();
 
